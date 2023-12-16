@@ -1,0 +1,21 @@
+{
+  "name": "result",
+  "version": "1.0.0",
+  "description": "Fully type-safe implementation of Result type in Typescript.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rayologist/Result-Type.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rayologist/Result-Type/issues"
+  },
+  "homepage": "https://github.com/Rayologist/Result-Type#readme"
+}
