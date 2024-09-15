@@ -1,8 +1,8 @@
 abstract class OkErr<T> {
   abstract isOk(): this is OkErr<T | void>;
   abstract isErr(): this is OkErr<T | void>;
-  abstract getError(): T | void;
-  abstract getValue(): T | void;
+  abstract get error(): T | void;
+  abstract get value(): T | void;
 }
 
 type ErrorUnion<T extends readonly Result<unknown, unknown>[]> =
@@ -13,7 +13,7 @@ type OkTuple<T extends readonly Result<unknown, unknown>[]> = {
 };
 
 export class Err<T> implements OkErr<T> {
-  constructor(private value: T) {}
+  constructor(private result: T) {}
 
   isOk(): this is Err<void> {
     return false;
@@ -23,17 +23,17 @@ export class Err<T> implements OkErr<T> {
     return true;
   }
 
-  getError(): T {
-    return this.value;
+  get error(): T {
+    return this.result;
   }
 
-  getValue(): void {
-    throw new Error("Error does not have a value");
+  get value(): void {
+    throw new Error("`Error` result can not have a value");
   }
 }
 
 export class Ok<T> implements OkErr<T> {
-  constructor(private value: T) {}
+  constructor(private result: T) {}
 
   isOk(): this is Ok<T> {
     return true;
@@ -43,31 +43,30 @@ export class Ok<T> implements OkErr<T> {
     return false;
   }
 
-  getError(): void {
-    throw new Error("Ok does not have an error");
+  get error(): void {
+    throw new Error("`Ok` result can not have an error");
   }
 
-  getValue(): T {
-    return this.value;
+  get value(): T {
+    return this.result;
   }
 }
 
 export type Result<T, E = Error> = Ok<T> | Err<E>;
-
 export const Result = {
-  Ok: function <T, R = T extends Ok<any> ? T : Ok<T>>(value: T): R {
-    if (value instanceof Ok) {
-      return new Ok(value.getValue()) as R;
+  Ok: function <T, R = T extends Ok<any> ? T : Ok<T>>(result: T): R {
+    if (result instanceof Ok) {
+      return new Ok(result.value) as R;
     }
 
-    return new Ok(value) as R;
+    return new Ok(result) as R;
   },
 
-  Err: function <E, R = E extends Err<any> ? E : Err<E>>(error: E): R {
-    if (error instanceof Err) {
-      return new Err(error.getError()) as R;
+  Err: function <E, R = E extends Err<any> ? E : Err<E>>(result: E): R {
+    if (result instanceof Err) {
+      return new Err(result.error()) as R;
     }
-    return new Err(error) as R;
+    return new Err(result) as R;
   },
 
   all<T extends Result<unknown, unknown>[] | []>(
@@ -80,7 +79,7 @@ export const Result = {
       if (result.isErr()) {
         return result as Err<ErrorUnion<T>>;
       }
-      values.push(result.getValue());
+      values.push(result.value);
     }
 
     return Result.Ok(values) as Ok<OkTuple<T>>;
