@@ -9,7 +9,7 @@ type ErrorUnion<T extends readonly Result<unknown, unknown>[]> =
   T extends readonly Result<unknown, infer E>[] ? E : never;
 
 type OkTuple<T extends readonly Result<unknown, unknown>[]> = {
-  [K in keyof T]: T[K] extends Result<infer T, any> ? T : never;
+  [K in keyof T]: T[K] extends Result<infer T, unknown> ? T : never;
 };
 
 export class Err<T> implements OkErr<T> {
@@ -54,7 +54,7 @@ export class Ok<T> implements OkErr<T> {
 
 export type Result<T, E = Error> = Ok<T> | Err<E>;
 export const Result = {
-  Ok: function <T, R = T extends Ok<any> ? T : Ok<T>>(result: T): R {
+  Ok: function <T, R = T extends Ok<unknown> ? T : Ok<T>>(result: T): R {
     if (result instanceof Ok) {
       return new Ok(result.value) as R;
     }
@@ -62,9 +62,9 @@ export const Result = {
     return new Ok(result) as R;
   },
 
-  Err: function <E, R = E extends Err<any> ? E : Err<E>>(result: E): R {
+  Err: function <E, R = E extends Err<unknown> ? E : Err<E>>(result: E): R {
     if (result instanceof Err) {
-      return new Err(result.error()) as R;
+      return new Err(result.error) as R;
     }
     return new Err(result) as R;
   },
@@ -82,6 +82,6 @@ export const Result = {
       values.push(result.value);
     }
 
-    return Result.Ok(values) as Ok<OkTuple<T>>;
+    return Result.Ok(values);
   },
 } as const;
